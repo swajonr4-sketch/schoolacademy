@@ -1,0 +1,23 @@
+<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Install Check</title><link rel="manifest" href="manifest.webmanifest" crossorigin="use-credentials">
+<style>body{font:16px system-ui;padding:14px;max-width:640px;margin:auto}div{padding:8px;margin:6px 0;border-radius:8px;background:#eef}.ok{background:#d1fae5}.no{background:#fee2e2}</style></head>
+<body><h2>Install Check</h2><p>এই পেজের রেজাল্টের screenshot আমাকে পাঠান।</p><div id=o></div>
+<script>
+const o=document.getElementById('o');
+const add=(t,ok)=>{const d=document.createElement('div');d.className=ok===undefined?'':ok?'ok':'no';d.textContent=(ok===undefined?'':ok?'✅ ':'❌ ')+t;o.appendChild(d)};
+add('URL: '+location.href);
+add('HTTPS / secure context',window.isSecureContext);
+add('Browser: '+navigator.userAgent.slice(0,90));
+window.addEventListener('beforeinstallprompt',e=>add('Chrome install prompt পাওয়া গেছে — install করা যাবে',true));
+(async()=>{
+ try{const r=await fetch('manifest.webmanifest',{credentials:'include'});const t=await r.text();
+  add('manifest.webmanifest status '+r.status+', type: '+r.headers.get('content-type'),r.ok);
+  let j;try{j=JSON.parse(t);add('manifest JSON ঠিক আছে',true)}catch(e){add('manifest JSON নয় — শুরুর অংশ: '+t.slice(0,80).replace(/\s+/g,' '),false)}
+  if(j)for(const i of j.icons){const x=await fetch(i.src,{credentials:'include'});const ty=x.headers.get('content-type')||'';add(i.src+' → '+x.status+' '+ty,x.ok&&ty.includes('image'))}
+ }catch(e){add('manifest fetch error: '+e.message,false)}
+ try{const r=await fetch('sw.js',{credentials:'include'});const ty=r.headers.get('content-type')||'';const t=await r.text();
+  add('sw.js status '+r.status+', type: '+ty,r.ok&&/javascript/.test(ty)&&t.startsWith('const'))}catch(e){add('sw.js error '+e.message,false)}
+ if('serviceWorker' in navigator){try{const g=await navigator.serviceWorker.register('sw.js');add('Service worker register ঠিক আছে',true)}catch(e){add('Service worker register ব্যর্থ: '+e.message,false)}}else add('Service worker support নেই',false);
+ add('Standalone mode এ চলছে: '+matchMedia('(display-mode: standalone)').matches);
+})();
+</script></body></html>

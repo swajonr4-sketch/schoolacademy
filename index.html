@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>School Academy</title>
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#1d4ed8">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="School Academy">
+<style>
+:root{--bg:#f6f8fc;--card:#fff;--tx:#14213d;--mu:#5c6b84;--pr:#1d4ed8;--ac:#f59e0b;--bd:#e2e8f0;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0f172a;--card:#1e293b;--tx:#f1f5f9;--mu:#94a3b8;--pr:#60a5fa;--bd:#334155}}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;font-family:system-ui,-apple-system,"Noto Sans Bengali",Segoe UI,sans-serif;background:var(--bg);color:var(--tx)}
+header{background:var(--pr);color:#fff;padding:16px;position:sticky;top:env(safe-area-inset-top,0px);z-index:5}
+header h1{margin:0;font-size:20px}header h1 span{color:#fde68a}
+.wrap{max-width:760px;margin:0 auto;padding:14px}
+input[type=search]{width:100%;padding:12px 14px;border-radius:12px;border:0;margin-top:10px;font-size:16px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:14px;cursor:pointer}
+.card:hover{border-color:var(--pr)}
+.big{font-size:22px;font-weight:700;color:var(--pr)}
+.mu{color:var(--mu);font-size:13px}
+.crumb{margin:6px 0 12px;font-size:14px}.crumb a{color:var(--pr);cursor:pointer}
+h2{font-size:18px;margin:14px 0 8px}
+.q{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:12px;margin-bottom:8px}
+.tag{display:inline-block;background:var(--ac);color:#1f2937;border-radius:99px;padding:1px 8px;font-size:11px;margin-right:6px}
+button.ans{margin-top:8px;background:none;border:1px solid var(--pr);color:var(--pr);border-radius:8px;padding:4px 10px;cursor:pointer}
+.a{display:none;margin-top:8px;padding:8px;border-left:3px solid var(--ac);background:var(--bg)}
+mark{background:#fde68a;color:#000}
+.hd{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+.btn,#ib{background:#f59e0b;color:#1f2937;border:0;border-radius:10px;padding:8px 12px;font-weight:700;font-size:14px;cursor:pointer}
+#ib{display:none;margin:0}
+.bm{float:right;background:none;border:0;font-size:22px;color:#f59e0b;cursor:pointer;line-height:1}
+details{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:10px 12px;margin-top:14px}
+summary{cursor:pointer;font-weight:700}
+</style>
+</head>
+<body>
+<header><div class="wrap" style="padding:0"><h1>School <span>Academy</span></h1>
+<div class="mu" style="color:#dbeafe">Class 6–10 · সব বই · সব অধ্যায় · প্রশ্ন</div>
+<div class="hd"><button class="btn" id="bs">★ সংরক্ষিত</button><button class="btn" id="br">🎲 র‍্যান্ডম ১০টি</button><button id="ib">📲 App install</button></div>
+<input id="s" type="search" placeholder="প্রশ্ন খুঁজুন (যেমন: ভগ্নাংশ, photosynthesis)…"></div></header>
+<div class="wrap" id="app"></div>
+<div id="stt" class="mu" style="text-align:center;padding:12px">সংস্করণ v6 (GitHub) · https: <span id="sh"></span> · SW: <span id="ss">…</span></div>
+<script src="data.js"></script>
+<script>
+const TT={M:"MCQ",S:"সংক্ষিপ্ত",C:"সৃজনশীল"},ALL=[],data={};
+for(const c in RAW){data[c]={};for(const s in RAW[c]){data[c][s]={};for(const ch in RAW[c][s])data[c][s][ch]=RAW[c][s][ch].map((r,i)=>{const o={q:r[0],a:r[1],t:TT[r[2]]||r[2],c,s,ch,id:[c,s,ch,i].join('|')};ALL.push(o);return o})}}
+let BM=[];try{BM=JSON.parse(localStorage.getItem('sa_bm')||'[]')}catch(e){}
+const saveBM=()=>{try{localStorage.setItem('sa_bm',JSON.stringify(BM))}catch(e){}};
+const app=document.getElementById('app'),S=document.getElementById('s');
+let st={c:null,s:null,ch:null,v:null},RL=[];
+const esc=t=>t.replace(/[&<>]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[m]));
+const hl=(t,k)=>{t=esc(t);return k?t.replace(new RegExp(k.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'),'gi'),m=>'<mark>'+m+'</mark>'):t};
+const qH=(x,k,p)=>`<div class="q"><span class="tag">${x.t}</span>${p?`<span class="mu">Class ${x.c} › ${esc(x.s)} › ${esc(x.ch)}</span>`:''}<button class="bm" data-id="${esc(x.id)}">${BM.includes(x.id)?'★':'☆'}</button><div style="margin-top:6px">${hl(x.q,k)}</div><button class="ans">উত্তর দেখুন</button><div class="a">${hl(x.a,k)}</div></div>`;
+document.addEventListener('click',e=>{const b=e.target.closest('.bm');if(b){const id=b.dataset.id,i=BM.indexOf(id);i<0?BM.push(id):BM.splice(i,1);saveBM();b.textContent=i<0?'★':'☆';if(st.v==='saved'&&i>=0)render();return}
+const a=e.target.closest('.ans');if(a){const n=a.nextElementSibling;n.style.display=n.style.display==='block'?'none':'block'}});
+function crumb(){let p=[`<a onclick="go()">হোম</a>`];
+ if(st.c)p.push(`<a onclick="go('${st.c}')">Class ${st.c}</a>`);
+ if(st.s)p.push(`<a onclick="go('${st.c}','${st.s}')">${st.s}</a>`);
+ if(st.ch)p.push(esc(st.ch));return `<div class="crumb">${p.join(' › ')}</div>`}
+function go(c,s,ch,v){st={c:c||null,s:s||null,ch:ch||null,v:v||null};S.value='';if(v==='rand')RL=ALL.slice().sort(()=>Math.random()-.5).slice(0,10);render()}
+const lst=(h,a,k,p)=>h+(a.length?a.map(x=>qH(x,k,p)).join(''):'<p class="mu">কিছু নেই। প্রশ্নের পাশের ☆ চাপলে এখানে জমা হবে।</p>');
+function render(){let h='';const cr=crumb();
+ if(st.v==='saved')h=lst(cr+'<h2>★ সংরক্ষিত প্রশ্ন</h2>',ALL.filter(x=>BM.includes(x.id)),'',1);
+ else if(st.v==='rand')h=lst(cr+'<h2>🎲 র‍্যান্ডম অনুশীলন</h2>',RL,'',1)+'<button class="btn" style="margin:8px 0" onclick="go(null,null,null,\'rand\')">আরও ১০টি প্রশ্ন</button>';
+ else if(!st.c){h=`<div class="mu" style="margin:4px 0">মোট ${ALL.length} টি প্রশ্ন · ${Object.keys(data).length} টি ক্লাস</div><h2>ক্লাস নির্বাচন করুন</h2><div class="grid">`+Object.keys(data).map(c=>`<div class="card" onclick="go('${c}')"><div class="big">Class ${c}</div><div class="mu">${Object.keys(data[c]).length} টি বিষয়</div></div>`).join('')+`</div><details><summary>📲 ফোনে app হিসেবে install করার নিয়ম</summary><p><b>Android (Chrome):</b> ডানদিকের ⋮ মেনু → "Install app" বা "Add to Home screen"। উপরে "📲 App install" বাটন এলে সেটাও চাপতে পারেন।</p><p><b>iPhone (Safari):</b> Share বাটন → "Add to Home Screen"।</p><p class="mu">সাইট অবশ্যই https:// দিয়ে খুলতে হবে।</p></details>`}
+ else if(!st.s)h=cr+'<h2>বিষয়</h2><div class="grid">'+Object.keys(data[st.c]).map(s=>`<div class="card" onclick="go('${st.c}','${s}')"><div class="big" style="font-size:18px">${s}</div><div class="mu">${Object.keys(data[st.c][s]).length} অধ্যায়</div></div>`).join('')+'</div>';
+ else if(!st.ch)h=cr+'<h2>অধ্যায়</h2>'+Object.entries(data[st.c][st.s]).map(([n,q])=>`<div class="card" style="margin-bottom:8px" onclick="go('${st.c}','${st.s}','${n}')"><b>${esc(n)}</b><div class="mu">${q.length} টি প্রশ্ন</div></div>`).join('');
+ else h=lst(cr+'<h2>প্রশ্ন</h2>',data[st.c][st.s][st.ch],'',0);
+ app.innerHTML=h;scrollTo(0,0)}
+S.addEventListener('input',()=>{const k=S.value.trim();if(!k){render();return}
+ const r=ALL.filter(x=>(x.q+x.a+x.ch+x.s).toLowerCase().includes(k.toLowerCase()));
+ app.innerHTML=lst(`<h2>${r.length} টি ফলাফল</h2>`,r,k,1)});
+document.getElementById('bs').onclick=()=>go(null,null,null,'saved');
+document.getElementById('br').onclick=()=>go(null,null,null,'rand');
+render();
+document.getElementById('sh').textContent=window.isSecureContext?'✅':'❌ (https:// দিয়ে খুলুন)';
+if("serviceWorker" in navigator){window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").then(()=>{document.getElementById('ss').textContent='✅'}).catch(e=>{document.getElementById('ss').textContent='❌ '+e.message}))}else document.getElementById('ss').textContent='❌ নেই';
+let dp=null;const ib=document.getElementById('ib');
+window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();dp=e;ib.style.display='inline-block'});
+ib.onclick=async()=>{if(!dp)return;dp.prompt();await dp.userChoice;dp=null;ib.style.display='none'};
+window.addEventListener('appinstalled',()=>{ib.style.display='none'});
+</script>
+</body>
+</html>
